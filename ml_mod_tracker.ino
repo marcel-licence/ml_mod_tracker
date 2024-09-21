@@ -599,8 +599,25 @@ void loop(void)
 }
 
 
+void GenerateSilence(void)
+{
+    Q1_14 left[SAMPLE_BUFFER_SIZE], right[SAMPLE_BUFFER_SIZE];
+
+    memset(left, 0, sizeof(left));
+    memset(right, 0, sizeof(right));
+#ifdef AUDIO_4CH_ENABLED
+    Audio_Output(left, right, left, right);
+    Audio_Output(left, right, left, right);
+#else
+    Audio_Output(left, right);
+    Audio_Output(left, right);
+#endif
+}
+
 bool LoadFileFromIdx(void)
 {
+    GenerateSilence();
+
     char filename[64];
     char filter[] = ".mod";
 
@@ -617,6 +634,7 @@ bool LoadFileFromIdx(void)
         if (TrackerLoadFile())
         {
             Serial.printf("File loaded into tracker\n");
+            FS_CloseFile();
             TrackerStartPlayback();
             return true;
         }
@@ -624,6 +642,7 @@ bool LoadFileFromIdx(void)
         {
             Serial.printf("Unable to load file\n");
         }
+        FS_CloseFile();
     }
     return false;
 }
@@ -659,7 +678,6 @@ inline void AppBtn(uint8_t param, uint8_t value)
 {
     if (value > 0)
     {
-
         switch (param)
         {
 #ifdef AC101_ENABLED

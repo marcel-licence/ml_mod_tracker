@@ -1,5 +1,6 @@
 fqbn;version;config
-espressif:esp32:esp32;2.0.13;PSRAM=enabled\nPARTITION_SCHEME=no_ota\nLITTLE_FS_BASE_ADDR=2162688\nLITTLE_FS_SIZE=1966080
 esp8266:esp8266:d1_mini;latest;
-rp2040:rp2040:rpipico;latest;USBSTACK=tinyusb\nFLASH=2097152_1048576
+espressif:esp32:esp32;latest;PSRAM=enabled\nPARTITION_SCHEME=no_ota\nLITTLE_FS_BASE_ADDR=2162688\nLITTLE_FS_SIZE=1966080
 espressif:esp32:lolin_s2_mini;latest;
+rp2040:rp2040:rpipico2;latest;FLASH=4194304_2097152
+rp2040:rp2040:rpipico;latest;USBSTACK=tinyusb\nFLASH=2097152_1048576

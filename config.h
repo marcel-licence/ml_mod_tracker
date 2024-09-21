@@ -100,6 +100,7 @@
 
 
 #if (defined ARDUINO_RASPBERRY_PI_PICO) || (defined ARDUINO_ARCH_RP2040)
+#ifndef __ARM_FEATURE_DSP
 #define BLINK_LED_PIN 25
 #define WS2812_PIN  28
 
@@ -111,7 +112,27 @@
 #define BUTTON_STEP_PIN  15
 #define BUTTON_OTHER1_PIN  11
 #define BUTTON_OTHER2_PIN  7
+#endif
+#endif
 
+
+/*
+ * configuration for the Raspberry Pi Pico 2
+ * BOARD: Raspberry Pi RP2040 (4.0.1)
+ * Device: Raspberry Pi Pico 2
+ */
+#ifdef ARDUINO_ARCH_RP2040
+#ifdef __ARM_FEATURE_DSP
+//#define MAX_DELAY_Q 8096
+#define PICO_AUDIO_I2S
+#define PICO_AUDIO_I2S_DATA_PIN 26
+#define PICO_AUDIO_I2S_CLOCK_PIN_BASE 27
+#define MIDI_RX1_PIN    13
+#define MIDI_TX1_PIN    12
+#define LED_PIN LED_BUILTIN
+#define BLINK_LED_PIN LED_BUILTIN
+#define WS2812_PIN 3
+#endif
 #endif
 
 /*
