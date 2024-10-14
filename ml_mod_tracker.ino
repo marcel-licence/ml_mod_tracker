@@ -65,7 +65,7 @@
 #endif
 
 #ifdef MAX_DELAY_Q
-#include <ml_delay.h>
+#include <ml_delay_q.h>
 #endif
 
 #include <ml_utils.h>
