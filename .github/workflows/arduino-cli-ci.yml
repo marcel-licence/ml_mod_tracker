@@ -89,6 +89,17 @@ jobs:
             options: ""
             manual_only: false
 
+          - name: "LOLIN(WEMOS) D1 R2 & mini"
+            fname: "d1_mini"
+            fqbn: "esp8266:esp8266:d1_mini"
+            core: "esp8266:esp8266@3.1.2"
+            urls: "http://arduino.esp8266.com/stable/package_esp8266com_index.json"
+            family: "ESP8266"
+            extra_libs: ""
+            options: ""
+            manual_only: false
+
+
           # RP2040
           - name: "Raspberry Pi Pico"
             fname: "pico_rp2040"
@@ -172,10 +183,19 @@ jobs:
               name: "XIAO_ESP32C3"
 
           - board:
+              name: "Generic ESP8266 Module"
+              
+          - board:
               name: "ESP32C3 Dev Module"
 
-          - board:
-              name: "Teensy 4.1"
+          - board: # does not support littleFS
+              name: "Seeeduino XIAO (SAMD21)"
+
+          - board: # does not support littleFS
+              name: "Generic STM32F4 Series - BlackPill F411CE"
+
+          - board: # does not support littleFS
+              name: "Generic STM32H7 Series - Daisy Seed"
 
     steps:
     - uses: actions/checkout@v4
