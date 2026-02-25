@@ -179,13 +179,13 @@ jobs:
             manual_only: true
 
         exclude:
-          - board:
+          - board: # no audio output at the moment
               name: "XIAO_ESP32C3"
 
-          - board:
+          - board: # pin definition missing
               name: "Generic ESP8266 Module"
               
-          - board:
+          - board: # no audio output at the moment
               name: "ESP32C3 Dev Module"
 
           - board: # does not support littleFS
@@ -196,6 +196,9 @@ jobs:
 
           - board: # does not support littleFS
               name: "Generic STM32H7 Series - Daisy Seed"
+
+          - board: # does not support littleFS
+              name: "Teensy 4.1"
 
     steps:
     - uses: actions/checkout@v4
