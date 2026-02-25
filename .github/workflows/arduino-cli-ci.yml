@@ -261,12 +261,16 @@ jobs:
         echo "Found: $TOOL"
         echo "MKLITTLEFS=$TOOL" >> $GITHUB_ENV
       
-      
     - name: Build LittleFS Image (ESP32)
       if: matrix.board.family == 'ESP32'
       run: |
         mkdir -p build/${{ matrix.board.fname }}
-        mklittlefs -c data -b 4096 -p 256 -s 0x140000 build/${{ matrix.board.fname }}/littlefs.bin
+        "$MKLITTLEFS" \
+          -c data \
+          -b 4096 \
+          -p 256 \
+          -s 0x140000 \
+          build/${{ matrix.board.fname }}/littlefs.bin
       
     - name: Build LittleFS Image (RP2040)
       if: contains(matrix.board.family, 'rp2')
@@ -284,12 +288,27 @@ jobs:
       if: contains(matrix.board.family, 'rp2')
       run: |
         curl -L https://raw.githubusercontent.com/microsoft/uf2/master/utils/uf2conv.py -o uf2conv.py
+        curl -L https://raw.githubusercontent.com/microsoft/uf2/master/utils/uf2families.json -o uf2families.json
+
         python3 uf2conv.py build/${{ matrix.board.fname }}/littlefs.bin \
           --family RP2040 \
-          --base 0x10000000 \
+          --base 0x10100000 \
           --convert \
           --output build/${{ matrix.board.fname }}/littlefs.uf2
 
+    - name: Locate elf2uf2
+      if: contains(matrix.board.family, 'rp2')
+      run: |
+        TOOL=$(find ~/.arduino15/packages/rp2040 -name elf2uf2 -type f | head -n 1)
+        echo "ELF2UF2=$TOOL" >> $GITHUB_ENV
+    
+    - name: Convert LittleFS to UF2 (RP2040)
+      if: contains(matrix.board.family, 'rp2')
+      run: |
+        "$ELF2UF2" \
+          build/${{ matrix.board.fname }}/littlefs.bin \
+          build/${{ matrix.board.fname }}/littlefs_b.uf2
+    
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
