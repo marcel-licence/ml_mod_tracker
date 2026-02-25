@@ -270,28 +270,6 @@ jobs:
           --convert \
           --output build/${{ matrix.board.fname }}/littlefs.uf2
 
-    - name: Generate Flash Instructions
-      run: |
-        cat <<EOF > build/${{ matrix.board.fname }}/FLASHING.txt
-    
-    Firmware: firmware file in this folder
-    Filesystem: littlefs.bin or littlefs.uf2
-    
-    RP2040:
-      Hold BOOTSEL and drag firmware.uf2 to the drive.
-    
-    ESP32:
-      esptool.py write_flash 0x10000 firmware.bin
-      esptool.py write_flash 0x290000 littlefs.bin
-    
-    Linux/Mac:
-      Use esptool.py
-    
-    Windows:
-      Use ESP Flash Tool or esptool.exe
-    
-    EOF
-
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
