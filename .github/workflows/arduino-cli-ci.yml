@@ -303,7 +303,7 @@ jobs:
         echo "ELF2UF2=$TOOL" >> $GITHUB_ENV
     
     - name: Convert LittleFS to UF2 (RP2040)
-      if: contains(matrix.board.family, 'rp2')
+      if: false # contains(matrix.board.family, 'rp2')
       run: |
         "$ELF2UF2" \
           build/${{ matrix.board.fname }}/littlefs.bin \
