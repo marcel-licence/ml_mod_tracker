@@ -248,6 +248,20 @@ jobs:
         curl -L "https://api.modarchive.org/downloads.php?moduleid=168570#nighthawk_-_super_mario_bros.mod" -o data/nighthawk_-_super_mario_bros.mod
         curl -L "https://api.modarchive.org/downloads.php?moduleid=113528#zelda_1.mod" -o data/zelda_1.mod
       
+    - name: Locate mklittlefs
+      id: findfs
+      run: |
+        TOOL=$(find ~/.arduino15/packages -name mklittlefs -type f | head -n 1)
+    
+        if [ -z "$TOOL" ]; then
+          echo "mklittlefs not found!"
+          exit 1
+        fi
+    
+        echo "Found: $TOOL"
+        echo "MKLITTLEFS=$TOOL" >> $GITHUB_ENV
+      
+      
     - name: Build LittleFS Image (ESP32)
       if: matrix.board.family == 'ESP32'
       run: |
@@ -258,7 +272,13 @@ jobs:
       if: contains(matrix.board.family, 'rp2')
       run: |
         mkdir -p build/${{ matrix.board.fname }}
-        mklittlefs -c data -b 4096 -p 256 -s 2097152 build/${{ matrix.board.fname }}/littlefs.bin
+    
+        "$MKLITTLEFS" \
+          -c data \
+          -b 4096 \
+          -p 256 \
+          -s 2097152 \
+          build/${{ matrix.board.fname }}/littlefs.bin
 
     - name: Convert LittleFS to UF2 (RP2040)
       if: contains(matrix.board.family, 'rp2')
