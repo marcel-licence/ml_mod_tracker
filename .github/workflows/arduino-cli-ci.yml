@@ -238,6 +238,60 @@ jobs:
       if: contains(matrix.board.family, 'rp2')
       run: mv build/${{ matrix.board.fname }}/*.uf2 build/firmware.uf2 || true
 
+    - name: Prepare data folder
+      run: |
+        mkdir -p data
+        curl -L "https://api.modarchive.org/downloads.php?moduleid=172513#mines.mod" -o data/mines.mod
+        curl -L "https://api.modarchive.org/downloads.php?moduleid=48953#lotus3_3.mod" -o data/lotus3_3.mod
+        curl -L "https://api.modarchive.org/downloads.php?moduleid=48931#lotus3-1.mod" -o data/lotus3-1.mod
+        curl -L "https://api.modarchive.org/downloads.php?moduleid=48962#lotus3_6.mod" -o data/lotus3_6.mod
+        curl -L "https://api.modarchive.org/downloads.php?moduleid=168570#nighthawk_-_super_mario_bros.mod" -o data/nighthawk_-_super_mario_bros.mod
+        curl -L "https://api.modarchive.org/downloads.php?moduleid=113528#zelda_1.mod" -o data/zelda_1.mod
+      
+    - name: Build LittleFS Image (ESP32)
+      if: matrix.board.family == 'ESP32'
+      run: |
+        mkdir -p build/${{ matrix.board.fname }}
+        mklittlefs -c data -b 4096 -p 256 -s 0x140000 build/${{ matrix.board.fname }}/littlefs.bin
+      
+    - name: Build LittleFS Image (RP2040)
+      if: contains(matrix.board.family, 'rp2')
+      run: |
+        mkdir -p build/${{ matrix.board.fname }}
+        mklittlefs -c data -b 4096 -p 256 -s 2097152 build/${{ matrix.board.fname }}/littlefs.bin
+
+    - name: Convert LittleFS to UF2 (RP2040)
+      if: contains(matrix.board.family, 'rp2')
+      run: |
+        curl -L https://raw.githubusercontent.com/microsoft/uf2/master/utils/uf2conv.py -o uf2conv.py
+        python3 uf2conv.py build/${{ matrix.board.fname }}/littlefs.bin \
+          --family RP2040 \
+          --base 0x10000000 \
+          --convert \
+          --output build/${{ matrix.board.fname }}/littlefs.uf2
+
+    - name: Generate Flash Instructions
+      run: |
+        cat <<EOF > build/${{ matrix.board.fname }}/FLASHING.txt
+    
+    Firmware: firmware file in this folder
+    Filesystem: littlefs.bin or littlefs.uf2
+    
+    RP2040:
+      Hold BOOTSEL and drag firmware.uf2 to the drive.
+    
+    ESP32:
+      esptool.py write_flash 0x10000 firmware.bin
+      esptool.py write_flash 0x290000 littlefs.bin
+    
+    Linux/Mac:
+      Use esptool.py
+    
+    Windows:
+      Use ESP Flash Tool or esptool.exe
+    
+    EOF
+
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
@@ -252,5 +306,6 @@ jobs:
           build/${{ matrix.board.fname }}/**/*.bin
           build/${{ matrix.board.fname }}/**/*.uf2
           build/${{ matrix.board.fname }}/**/*.hex
+          build/${{ matrix.board.fname }}/**/*.txt
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
