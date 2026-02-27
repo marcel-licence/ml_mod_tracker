@@ -352,18 +352,27 @@ jobs:
           -s ${{ matrix.board.fs_size }} \
           build/${{ matrix.board.fname }}/littlefs.bin
 
-    - name: Convert LittleFS to UF2
+    - name: Locate picotool
+      if: contains(matrix.board.family, 'rp2')
+      run: |
+        TOOL=$(find ~/.arduino15/packages/rp2040 -name picotool -type f | head -n 1)
+    
+        if [ -z "$TOOL" ]; then
+          echo "picotool not found!"
+          exit 1
+        fi
+    
+        echo "PICOTOOL=$TOOL" >> $GITHUB_ENV
+
+    - name: Convert LittleFS to UF2 (RP2040)
       if: matrix.board.fs_base != ''
       run: |
-        curl -L https://raw.githubusercontent.com/microsoft/uf2/master/utils/uf2conv.py -o uf2conv.py
-        curl -L https://raw.githubusercontent.com/microsoft/uf2/master/utils/uf2families.json -o uf2families.json
-    
-        python3 uf2conv.py \
+        "$PICOTOOL" uf2 convert \
           build/${{ matrix.board.fname }}/littlefs.bin \
-          --family ${{ matrix.board.fs_family }} \
-          --base ${{ matrix.board.fs_base }} \
-          --convert \
-          --output build/${{ matrix.board.fname }}/littlefs.uf2
+          -t bin \
+          build/${{ matrix.board.fname }}/littlefs.uf2 \
+          -o ${{ matrix.board.fs_base }} \
+          --family ${{ matrix.board.fs_family }}
 
     - name: Locate elf2uf2
       if: contains(matrix.board.family, 'rp2')
