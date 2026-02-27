@@ -164,7 +164,7 @@ jobs:
             options: "flash=16777216_15728640,usbstack=tinyusb"
             fs_size: 15728640
             fs_base: "0x100fe000"
-            fs_family: "RP2040"
+            fs_family: "data"
             manual_only: false
 
           # Seeeduino
