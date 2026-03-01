@@ -282,6 +282,19 @@ jobs:
         git clone --depth 1 https://github.com/marcel-licence/ML_SynthTools_Lib.git \
           ~/Arduino/libraries/ML_SynthTools_Lib
 
+    - name: Generate embedded MOD data
+      # if: matrix.board.family == 'Teensy' || matrix.board.family == 'STM32' || matrix.board.family == 'SAMD21'
+      run: |
+        mkdir -p src/generated
+
+        # Download MOD
+        curl -L "https://api.modarchive.org/downloads.php?moduleid=172513#mines.mod" -o mines.mod
+        curl -L "https://api.modarchive.org/downloads.php?moduleid=48953#lotus3_3.mod" -o lotus3_3.mod
+
+        # Convert to C array
+        xxd -i mines.mod > src/generated/mines_mod.c
+        xxd -i lotus3_3.mod > src/generated/lotus3_3_mod.c
+
     - name: Compile Sketch
       run: |
         FULL_FQBN="${{ matrix.board.fqbn }}"
@@ -402,5 +415,6 @@ jobs:
           build/${{ matrix.board.fname }}/**/*.uf2
           build/${{ matrix.board.fname }}/**/*.hex
           build/${{ matrix.board.fname }}/**/*.txt
+          src/generated/*
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
