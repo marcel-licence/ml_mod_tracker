@@ -149,7 +149,7 @@ jobs:
             extra_libs: "'MIDI Library@5.0.2'"
             options: "flash=4194304_3145728,usbstack=tinyusb"
             fs_size: 3145728
-            fs_base: "0x100ff000"
+            fs_base: "0x100fe000"
             fs_family: "rp2040"
             manual_only: false
 
