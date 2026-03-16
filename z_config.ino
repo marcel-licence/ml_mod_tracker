@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Marcel Licence
+ * Copyright (c) 2026 Marcel Licence
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,6 +45,11 @@
 #ifdef __CDT_PARSER__
 #include <cdt.h>
 #endif
+
+
+#include "app.h"
+#include <ml_tracker_mod.h>
+#include <ml_delay_q.h>
 
 
 #ifdef AUDIO_KIT_BUTTON_ANALOG
