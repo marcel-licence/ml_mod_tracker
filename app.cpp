@@ -76,6 +76,8 @@
 #include <ml_scope.h>
 #endif
 
+#include <ml_track_selector.h>
+
 #include "ml_tracker_mod.h"
 
 
@@ -89,25 +91,36 @@
 #undef ML_SYNTH_INLINE_DECLARATION
 
 
+#define SERIAL_WAIT_READY   3000 /*!< wait for usb console to be attached */
+#define SERIAL_WAIT_EXT     5000 /*!< wait additional time after Serial is ready */
+
+
 char shortName[] = "ML_Mod_Tracker";
 
 
-static uint8_t fileIdx = 0;
+void Serial_Setup(void)
+{
+    Serial.begin(SERIAL_BAUDRATE);
 
+    int cnt = 0;
+    int lastMillis = millis();
+
+    while (!Serial && cnt < SERIAL_WAIT_READY)
+    {
+        delay(50);
+        int newMillis = millis();
+        cnt += newMillis - lastMillis;
+    }
+
+    delay(SERIAL_WAIT_EXT);
+}
 
 /**
     @brief This function contains the setup routines.
  */
 void App_Setup(void)
 {
-    /*
-     * this code runs once
-     */
-    Serial.begin(SERIAL_BAUDRATE);
-    //while (!Serial);
-
-    delay(1000);
-    Serial.println(shortName);
+    Serial_Setup();
 
     CapsPrintInfo();
 
@@ -212,17 +225,8 @@ void App_Setup(void)
 #endif
 
 #if 1
-    /*
-     * try to load the next working file
-     */
-    while (true)
-    {
-        fileIdx++;
-        if (LoadFileFromIdx())
-        {
-            break;
-        }
-    }
+    static const char filter[] = ".mod";
+    TrackSelector_Setup(filter);
 #else
     /*
      * this is a little experiment to load static data from a file
@@ -242,6 +246,8 @@ void App_Setup(void)
     DisplaySetup();
 #endif
 #endif
+
+    TrackSelector_LoadFileNext();
 }
 
 #ifdef SOC_CPU_CORES_NUM
@@ -347,120 +353,6 @@ void ScaleLfo(const float *in, float *out, uint32_t len, float minV, float maxV)
     }
 }
 
-void Tracker_Autostart()
-{
-    static uint8_t titleIdx = 5;
-
-    if (Tracker_HasTrackFinished() == true)
-    {
-        switch (titleIdx)
-        {
-        case 0:
-            if (FS_OpenFile(FS_ID_LITTLEFS, "/house_my_kolsch_up.mod"))
-            {
-                if (TrackerLoadFile())
-                {
-                    TrackerStartPlayback();
-                }
-            }
-            break;
-
-        case 1:
-            if (FS_OpenFile(FS_ID_LITTLEFS, "/MONSTER.MOD"))
-            {
-                if (TrackerLoadFile())
-                {
-                    TrackerStartPlayback();
-                }
-            }
-            break;
-
-        case 2:
-            if (FS_OpenFile(FS_ID_LITTLEFS, "/Lotus3_Cd6-Shamrip.mod"))
-            {
-                if (TrackerLoadFile())
-                {
-                    TrackerStartPlayback();
-                }
-            }
-            break;
-
-        case 3:
-            if (FS_OpenFile(FS_ID_LITTLEFS, "/MINES.MOD"))
-            {
-                if (TrackerLoadFile())
-                {
-                    TrackerStartPlayback();
-                }
-            }
-            break;
-
-        case 4:
-            if (FS_OpenFile(FS_ID_LITTLEFS, "/2unlimitedmagic.mod"))
-            {
-                if (TrackerLoadFile())
-                {
-                    TrackerStartPlayback();
-                }
-            }
-            break;
-
-        case 5:
-            if (FS_OpenFile(FS_ID_LITTLEFS, "/PRES.MOD"))
-            {
-                if (TrackerLoadFile())
-                {
-                    TrackerStartPlayback();
-                }
-            }
-            break;
-
-        case 6:
-            if (FS_OpenFile(FS_ID_LITTLEFS, "/PRES.MOD"))
-            {
-                if (TrackerLoadFile())
-                {
-                    TrackerStartPlayback();
-                }
-            }
-            break;
-
-        case 7:
-            if (FS_OpenFile(FS_ID_LITTLEFS, "/Lotus3_Cd3-Lotus3.mod"))
-            {
-                if (TrackerLoadFile())
-                {
-                    TrackerStartPlayback();
-                }
-            }
-            break;
-#if 0
-        case 9:
-            if (FS_OpenFile(FS_ID_LITTLEFS, "/MICMAC2-TITLE.mod"))
-            {
-                if (TrackerLoadFile())
-                {
-                    TrackerStartPlayback();
-                }
-            }
-            break;
-#endif
-        case 8:
-            if (FS_OpenFile(FS_ID_LITTLEFS, "/Lotus3_Cd1-Breathless.mod"))
-            {
-                if (TrackerLoadFile())
-                {
-                    TrackerStartPlayback();
-                }
-            }
-            break;
-        }
-
-        titleIdx ++;
-
-    }
-}
-
 /**
     @brief This function contains the mainloop
  */
@@ -481,11 +373,6 @@ void App_Loop(void)
     }
 
     ButtonProcess(SAMPLE_BUFFER_SIZE);
-
-    /*
-     * loading next file when tracker stops playing
-     */
-    Tracker_Autostart();
 
     /*
      * MIDI processing
@@ -565,8 +452,15 @@ void App_Loop(void)
         ScopeOled_AddSamples(fl_sample, fr_sample, SAMPLE_BUFFER_SIZE);
     }
 #endif
-}
 
+    /*
+     * loading next file when tracker stops playing
+     */
+    if (Tracker_HasTrackFinished() == true)
+    {
+        TrackSelector_Process();
+    }
+}
 
 void GenerateSilence(void)
 {
@@ -583,18 +477,9 @@ void GenerateSilence(void)
 #endif
 }
 
-bool LoadFileFromIdx(void)
+bool TrackSelector_LoadTrack(const char *filename)
 {
     GenerateSilence();
-
-    char filename[64];
-    char filter[] = ".mod";
-
-    if (getFileFromIdx(fileIdx, filename, filter) == false)
-    {
-        fileIdx = 0;
-        getFileFromIdx(fileIdx, filename, filter);
-    }
 
     if (FS_OpenFile(FS_ID_LITTLEFS, filename))
     {
@@ -604,6 +489,7 @@ bool LoadFileFromIdx(void)
         {
             Serial.printf("File loaded into tracker\n");
             FS_CloseFile();
+            delay(1000);
             TrackerStartPlayback();
             return true;
         }
@@ -612,33 +498,11 @@ bool LoadFileFromIdx(void)
             Serial.printf("Unable to load file\n");
         }
         FS_CloseFile();
+        return false;
     }
     return false;
 }
 
-void LoadFileNext(void)
-{
-    while (true)
-    {
-        fileIdx++;
-        if (LoadFileFromIdx())
-        {
-            break;
-        }
-    }
-}
-
-void LoadFilePrev(void)
-{
-    while (true)
-    {
-        fileIdx--;
-        if (LoadFileFromIdx())
-        {
-            break;
-        }
-    }
-}
 
 /*
  * MIDI callbacks
@@ -659,11 +523,11 @@ void AppBtn(uint8_t param, uint8_t value)
 #endif
 
         case 4:
-            LoadFileNext();
+            TrackSelector_LoadFileNext();
             break;
 
         case 5:
-            LoadFilePrev();
+            TrackSelector_LoadFilePrev();
             break;
 
         default:
