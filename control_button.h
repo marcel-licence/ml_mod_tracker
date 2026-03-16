@@ -14,35 +14,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Dieses Programm ist Freie Software: Sie kÃ¶nnen es unter den Bedingungen
+ * Dieses Programm ist Freie Software: Sie können es unter den Bedingungen
  * der GNU General Public License, wie von der Free Software Foundation,
  * Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
- * verÃ¶ffentlichten Version, weiter verteilen und/oder modifizieren.
+ * veröffentlichten Version, weiter verteilen und/oder modifizieren.
  *
- * Dieses Programm wird in der Hoffnung bereitgestellt, dass es nÃ¼tzlich sein wird, jedoch
- * OHNE JEDE GEWÃ„HR,; sogar ohne die implizite
- * GewÃ¤hr der MARKTFÃ„HIGKEIT oder EIGNUNG FÃœR EINEN BESTIMMTEN ZWECK.
- * Siehe die GNU General Public License fÃ¼r weitere Einzelheiten.
+ * Dieses Programm wird in der Hoffnung bereitgestellt, dass es nützlich sein wird, jedoch
+ * OHNE JEDE GEWÄHR,; sogar ohne die implizite
+ * Gewähr der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+ * Siehe die GNU General Public License für weitere Einzelheiten.
  *
  * Sie sollten eine Kopie der GNU General Public License zusammen mit diesem
  * Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
  */
 
 /**
- * @file ml_inline.ino
+ * @file control_button.h
  * @author Marcel Licence
- * @date 13.03.2024
+ * @date 16.03.2026
  *
- * @brief This file is used to compile inline sources of ML SynthTools
+ * @brief Declarations of the control buttons
  */
 
-#include "config.h"
 
-#define ML_SYNTH_INLINE_DECLARATION
-#include <ml_inline.h>
-#undef ML_SYNTH_INLINE_DECLARATION
+#include <stdint.h>
 
-#define ML_SYNTH_INLINE_DEFINITION
-#include <ml_inline.h>
-#undef ML_SYNTH_INLINE_DEFINITION
-
+void ButtonSetup(uint32_t sample_rate);
+void ButtonProcess(uint32_t ticks);

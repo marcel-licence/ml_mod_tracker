@@ -29,20 +29,41 @@
  */
 
 /**
- * @file ml_inline.ino
+ * @file app.h
  * @author Marcel Licence
- * @date 13.03.2024
+ * @date 16.03.2026
  *
- * @brief This file is used to compile inline sources of ML SynthTools
+ * @brief Declarations of the app
  */
+
+
+#ifndef APP_H_
+#define APP_H_
+
 
 #include "config.h"
 
-#define ML_SYNTH_INLINE_DECLARATION
-#include <ml_inline.h>
-#undef ML_SYNTH_INLINE_DECLARATION
+#include <stdint.h>
 
-#define ML_SYNTH_INLINE_DEFINITION
-#include <ml_inline.h>
-#undef ML_SYNTH_INLINE_DEFINITION
 
+void App_Setup(void);
+void App_Loop(void);
+
+void App_Setup1(void);
+void App_Loop1(void);
+
+
+void LoadFileNext(void);
+bool LoadFileFromIdx(void);
+
+void AppBtn(uint8_t param, uint8_t value);
+void AppReverb_SetLevel(uint8_t param, uint8_t value);
+void AppSetInputGain(uint8_t unused __attribute__((unused)), uint8_t value);
+
+#ifdef MAX_DELAY_Q
+void App_DelayQ_SetLength(uint8_t unused __attribute__((unused)), uint8_t value);
+
+#endif
+
+
+#endif /* APP_H_ */

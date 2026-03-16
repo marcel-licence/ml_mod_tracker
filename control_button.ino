@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Marcel Licence
+ * Copyright (c) 2026 Marcel Licence
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,9 @@
  *
  * @brief In this file button presses are detected and controls the tracker
  */
+
+
+#include <ml_tracker_mod.h>
 
 
 #define BUTTON_STARTSTOP    0
