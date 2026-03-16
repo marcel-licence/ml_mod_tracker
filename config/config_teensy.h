@@ -51,7 +51,5 @@
 #define VOLUME_CONTROL_ENABLED
 //#define VIBRATO_ENABLED
 
-#endif /* TEENSYDUINO */
-
 
 #endif /* TEENSYDUINO */
