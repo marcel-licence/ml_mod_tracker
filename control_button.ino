@@ -38,6 +38,7 @@
 
 
 #include <ml_tracker_mod.h>
+#include <ml_track_selector.h>
 
 
 #define BUTTON_STARTSTOP    0
@@ -96,7 +97,7 @@ void ButtonPress(uint32_t function)
         Tracker_Start(0, 127);
         break;
     case BUTTON_NEXT:
-        LoadFileNext();
+        TrackSelector_LoadFileNext();
         break;
     case BUTTON_RESTART:
         Tracker_Restart(0, 127);
