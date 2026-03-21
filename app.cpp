@@ -95,7 +95,7 @@
 #define SERIAL_WAIT_EXT     5000 /*!< wait additional time after Serial is ready */
 
 
-char shortName[] = "ML_Mod_Tracker";
+const char shortName[] = "ML_Mod_Tracker";
 
 
 void Serial_Setup(void)
